@@ -1,6 +1,6 @@
 const db = require('../db/db');
 
-// GET all tasks
+// ✅ GET all tasks (latest first)
 exports.getTasks = (req, res) => {
   db.query('SELECT * FROM tasks ORDER BY created_at DESC', (err, results) => {
     if (err) return res.status(500).json({ error: err });
@@ -8,18 +8,22 @@ exports.getTasks = (req, res) => {
   });
 };
 
-// POST new task
+// ✅ POST: Add a new task (with deadline)
 exports.addTask = (req, res) => {
-  const { title } = req.body;
+  const { title, deadline } = req.body;
+
   if (!title) return res.status(400).json({ error: 'Title is required' });
 
-  db.query('INSERT INTO tasks (title) VALUES (?)', [title], (err, result) => {
+  const q = 'INSERT INTO tasks (title, deadline) VALUES (?, ?)';
+  const values = [title, deadline];
+
+  db.query(q, values, (err, result) => {
     if (err) return res.status(500).json({ error: err });
     res.status(201).json({ message: 'Task added', id: result.insertId });
   });
 };
 
-// PUT update task status
+// ✅ PUT: Update task status
 exports.updateTask = (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -30,7 +34,7 @@ exports.updateTask = (req, res) => {
   });
 };
 
-// DELETE task
+// ✅ DELETE: Delete task
 exports.deleteTask = (req, res) => {
   const { id } = req.params;
 
